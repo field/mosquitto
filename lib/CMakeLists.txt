@@ -1,7 +1,3 @@
-if(WITH_LIB_CPP)
-	add_subdirectory(cpp)
-endif()
-
 set(C_SRC
 	actions_publish.c
 	actions_subscribe.c
@@ -157,4 +153,18 @@ if(WITH_STATIC_LIBRARIES)
 	custom_install(TARGETS libmosquitto_static
 		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
 	)
+endif()
+
+# lib/cpp (mosquittopp_static) expands C_SRC/LIBRARIES, so include it after both
+# exist. C_SRC paths are relative to this dir; absolutise them so they resolve
+# when compiled from lib/cpp/.
+set(C_SRC_ABS "")
+foreach(f IN LISTS C_SRC)
+	get_filename_component(f_abs "${f}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+	list(APPEND C_SRC_ABS "${f_abs}")
+endforeach()
+set(C_SRC ${C_SRC_ABS})
+
+if(WITH_LIB_CPP)
+	add_subdirectory(cpp)
 endif()
